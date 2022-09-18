@@ -1,0 +1,158 @@
+/* SMART HOME AUTOMATION
+
+In this project three sensors are used to guide various applications.
+
+An ultrasonic sensor is placed near the door to sense someone's presence and notify people inside or can be connected to an automatic door.
+
+A temperature sensor is used to monitor the room's temperature and give feedback which can be applied to operate an air conditioner or a heater.
+
+Lastly a Gas sensor is embedded to detect fire and can take action accordingly.
+
+All the devices outputs are connected to an LCD to present the current status these feedbacks can be connected to drive further appliances accordingly.  
+
+
+*/
+
+
+
+#include <Adafruit_LiquidCrystal.h>
+#define gas A0
+#define temp A1
+int buz=8;
+int a=2;
+int b=4;
+int c=12;
+int t=7;
+int e=6;
+Adafruit_LiquidCrystal lcd_1(0);
+
+
+void setup()
+{
+  lcd_1.begin(16, 2);
+  lcd_1.setBacklight(0);
+  pinMode(gas, INPUT);
+  pinMode(buz, OUTPUT);
+  pinMode(a, OUTPUT);
+  pinMode(b, OUTPUT);
+  pinMode(c, OUTPUT);
+  pinMode(temp, INPUT); 
+  pinMode(t,OUTPUT);
+  pinMode(e,INPUT);
+  digitalWrite(buz,LOW);
+  digitalWrite(a,LOW);
+  digitalWrite(b,LOW);
+  digitalWrite(c,LOW);
+  
+}
+
+
+void loop()
+{
+  int val1=analogRead(gas);
+  int val2= analogRead(temp);
+  digitalWrite(t,LOW);
+  digitalWrite(t,HIGH);
+  delay(0.01);
+  digitalWrite(t,LOW);
+  float dur = pulseIn(e,HIGH);
+  float dis =((dur/2)*0.0343);
+  
+  if(val1>110 && val1<200)
+  {
+    //If smoke deteced is less due to burning of something in the gas or oven...
+    lcd_1.setBacklight(1);
+    digitalWrite(buz,HIGH);
+  	lcd_1.print("ALERT!!!");
+    lcd_1.setCursor(0, 1);
+    lcd_1.print("Detecting smoke!");
+    delay(1000);
+    digitalWrite(buz,LOW);
+    lcd_1.setBacklight(0);
+    lcd_1.clear();
+  }
+   if(val1>200 && val1<345)
+  {
+     //If huge smoke is deteced due to a fire accident a buzzer is triggered 
+    lcd_1.setBacklight(1);
+    digitalWrite(buz,HIGH);
+  	lcd_1.print("ALERT!!!");
+    lcd_1.setCursor(0, 1);
+    lcd_1.print("FIRE is detected!");
+    delay(1000);
+    digitalWrite(buz,LOW);
+    lcd_1.setBacklight(0);
+    lcd_1.clear();
+   }
+  
+  if(dis>0 && dis<96)
+  {
+    //Someone standing in front of the door
+    lcd_1.setBacklight(1);
+    digitalWrite(buz,HIGH);
+    lcd_1.print("Hello...");
+    lcd_1.setCursor(0, 1);
+    lcd_1.print("Open the door!");
+    delay(1000);
+    digitalWrite(buz,LOW);
+    lcd_1.setBacklight(0);
+    lcd_1.clear();
+  }
+  if(dis>95 && dis<230)
+  {
+    //Someone being detected near the entrance 
+    lcd_1.setBacklight(1);
+    digitalWrite(buz,HIGH);
+    lcd_1.print("Hello...");
+    lcd_1.setCursor(0, 1);
+    lcd_1.print("Someone coming!");
+    delay(1000);
+    digitalWrite(buz,LOW);
+    lcd_1.setBacklight(0);
+    lcd_1.clear();
+  }
+  if(dis>230)
+  {
+    lcd_1.clear();
+  }
+  
+   if(val2>20 && val2<135)
+  {
+     
+    lcd_1.setBacklight(1);
+    digitalWrite(a,HIGH);
+    lcd_1.print("TEMPERATURE:");
+    lcd_1.setCursor(0, 1);
+    lcd_1.print("Very cold!");
+    delay(1000);
+    digitalWrite(a,LOW);
+    lcd_1.setBacklight(0);
+    lcd_1.clear();
+  }
+  if(val2>134 && val2<184)
+  {
+    lcd_1.setBacklight(1);
+    digitalWrite(b,HIGH);
+    lcd_1.print("TEMPERATURE:");
+    lcd_1.setCursor(0, 1);
+    lcd_1.print("Normal!");
+    delay(1000);
+    digitalWrite(b,LOW);
+    lcd_1.setBacklight(0);
+    lcd_1.clear();
+  }
+  if(val2>183)
+  {
+    lcd_1.setBacklight(1);
+    digitalWrite(c,HIGH);
+    lcd_1.print("TEMPERATURE:");
+    lcd_1.setCursor(0, 1);
+    lcd_1.print("Very hot!");
+    delay(1000);
+    digitalWrite(c,LOW);
+    lcd_1.setBacklight(0);
+    lcd_1.clear();
+  }
+  
+  delay(2000);
+}
