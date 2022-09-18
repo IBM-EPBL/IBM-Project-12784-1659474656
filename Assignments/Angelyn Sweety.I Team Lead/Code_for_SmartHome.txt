@@ -1,0 +1,97 @@
+// SMART HOME AUTOMATION
+#define t 7
+#define e 6
+#define led1 10
+#define led2 11
+#define led3 12
+#define motor 9
+#define led 3
+#define pir 2
+#define bulb 4
+#define gas_sensor A2
+void setup()
+{
+  Serial.begin(9600);
+  pinMode(motor, OUTPUT);
+  pinMode(led, OUTPUT);
+  pinMode(pir, INPUT);
+  pinMode(bulb, OUTPUT);
+  pinMode(t, OUTPUT);
+  pinMode(e, INPUT);
+  pinMode(led1,OUTPUT);
+  pinMode(led2,OUTPUT);
+  pinMode(led3,OUTPUT);
+}
+
+void loop()
+{
+  //LED BRIGHTNESS CONTROL BASED ON AMBIENT LIGHT
+  int light_intense=analogRead(A0); 
+  int res=map(light_intense,0,679,255,0);
+  Serial.print("Light Intensity in the room:");
+  Serial.println(res);
+  analogWrite(led,res);
+  
+  //Motion Detection -- bulb on or off
+  int pir_op=digitalRead(pir);
+  if(pir_op==1)
+  {
+  	digitalWrite(bulb,pir_op);
+  	Serial.println("Motion detected : bulb ON");
+  }
+  else
+  {
+    digitalWrite(bulb,pir_op);
+  	Serial.println("Motion detected : bulb OFF");
+  }
+  
+  //Temperature sensor and Fan as the dc motor
+  int celsius;
+  celsius = map(((analogRead(A1) - 20) * 3.04), 0, 1023, -40, 125);
+  Serial.print("Temp in Celsius:");
+  Serial.println(celsius);
+  int speed = map(analogRead(A1),0,1023,0,255);
+  analogWrite(motor,speed);
+  
+  //gas sensor with buzzer alert
+  int val = analogRead(gas_sensor);      
+  Serial.print("Gas Sensor Value = ");
+  Serial.println(val);				  
+  if (val > 100)
+  {
+   	tone(8, 220, 100);
+    delay(50);
+  }
+  delay(10);
+  noTone(8);
+  
+  //Tank Water level Monitoring 
+  digitalWrite(t, LOW);
+  digitalWrite(t, HIGH);
+  delayMicroseconds(10); 
+  digitalWrite(t, LOW);
+  float dur= pulseIn(e,HIGH);
+  float dist=(dur/2)*0.0343;
+  Serial.print("Distance in cm: ");
+  Serial.println(dist);
+  if(dist> 0 && dist<=150)
+  {
+    digitalWrite(led1, HIGH);
+    digitalWrite(led2, LOW);
+    digitalWrite(led3, LOW);
+  }
+  else if(dist>150 && dist<=250)
+  {
+    digitalWrite(led2, HIGH);
+    digitalWrite(led1, LOW);
+    digitalWrite(led3, LOW);
+  }
+  else if(dist>250)
+  {
+    digitalWrite(led3, HIGH);
+    digitalWrite(led1, LOW);
+    digitalWrite(led2, LOW);
+  }
+    
+  delay(1000);
+}
